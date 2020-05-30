@@ -14,6 +14,7 @@ import { Viz } from "./viz";
 import * as mermaidAPI from "./mermaid";
 import * as wavedromAPI from "./wavedrom";
 import * as ditaaAPI from "./ditaa";
+import { utility } from "./mume";
 
 export async function processGraphs(
   text: string,
@@ -420,10 +421,37 @@ export async function processGraphs(
           result = await compileLaTeX(
             content,
             fileDirectoryPath,
-            Object.assign({}, attributes, {
-              latex_svg_dir: imageDirectoryPath,
-            }),
+            Object.assign({}, attributes, {}),
           );
+          const svgPathMatch = result.match(/(?<=img src=").*.svg/);
+          if (svgPathMatch) {
+            const svg = await utility.readFile(
+              path.resolve(projectDirectoryPath, svgPathMatch[0]),
+            );
+            const pngFilePath = (
+              await convertSVGToPNGFile(
+                attributes["filename"],
+                svg,
+                lines,
+                start,
+                end,
+                false,
+                options["alt"],
+                optionsStr,
+              )
+            ).replace(/\\/g, "/");
+            let altCaption = options["alt"];
+            if (altCaption == null) {
+              altCaption = "";
+            }
+            let imageOptions = "";
+            if (addOptionsStr) {
+              imageOptions = `{${optionsStr}}`
+                .replace(/latex_(width|height)/, `$1`)
+                .replace(/(?<=[ {])(\w+)(?![:=])(?=[ }])/, `$1=true`);
+            }
+            result = `![${altCaption}](${pngFilePath})${imageOptions}  `;
+          }
         } else if (
           currentCodeChunk.normalizedInfo.attributes["output"] === "markdown"
         ) {

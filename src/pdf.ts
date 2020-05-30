@@ -75,7 +75,6 @@ export function toSVGMarkdown(
           });
 
           let svgMarkdown = "";
-          const r = Math.random();
 
           items.forEach((fileName) => {
             const match = fileName.match(
@@ -105,15 +104,11 @@ export function toSVGMarkdown(
                   "/",
                 ); /* Windows file path issue. "..\..\blabla" doesn't work */
 
-              if (svgZoom || svgWidth || svgHeight) {
-                svgMarkdown += `<img src=\"${svgFilePath}\" ${
-                  svgWidth ? `width="${svgWidth}"` : ""
-                } ${svgHeight ? `height="${svgHeight}"` : ""} ${
-                  svgZoom ? `style="zoom:${svgZoom};"` : ""
-                }>`;
-              } else {
-                svgMarkdown += `![](${svgFilePath}?${r})\n`;
-              }
+              svgMarkdown += `<img src=\"${svgFilePath}\" ${
+                svgWidth ? `width="${svgWidth}"` : ""
+              } ${svgHeight ? `height="${svgHeight}"` : ""} ${
+                svgZoom ? `style="zoom:${svgZoom};"` : ""
+              }>`;
             }
           });
           return resolve(svgMarkdown);
